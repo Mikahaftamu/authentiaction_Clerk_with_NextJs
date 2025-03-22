@@ -1,21 +1,29 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
-
 export default clerkMiddleware(async (auth, req) => {
-  const { userId, sessionClaims, redirectToSignIn } = await auth();
-
-  if (!userId) {
-    return redirectToSignIn();
-  }
+  const { userId, sessionClaims } = await auth();
 
   const role = sessionClaims?.metadata?.role;
-  if (req.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL(role === "admin" ? "/admin" : "/dashboard", req.url));
+  const pathname = req.nextUrl.pathname;
+
+  // If user is NOT logged in and is trying to access a protected route, redirect to "/"
+  if (!userId && (pathname.startsWith("/dashboard") || pathname.startsWith("/admin"))) {
+    return NextResponse.redirect(new URL("/", req.url));
   }
+
+  // If user is logged in and is on "/", redirect based on role
+  if (userId && pathname === "/") {
+    if (role === "admin") {
+      return NextResponse.redirect(new URL("/admin", req.url));
+    } else {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+  }
+
+  return NextResponse.next(); // Allow normal page rendering
 });
 
 export const config = {
-  matcher: ["/((?!.*\\..*|_next).*)", "/"],
+  matcher: ["/((?!.*\\..*|_next).*)", "/"], // Applies middleware to all routes except static files
 };
