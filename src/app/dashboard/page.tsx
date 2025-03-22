@@ -1,15 +1,18 @@
 import { currentUser } from "@clerk/nextjs/server";
+import SaveUser from "@/components/SaveUser"; // Import the Client Component
 
 export default async function Dashboard() {
   const user = await currentUser();
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <SaveUser /> {/* Now this runs in the client properly */}
+      
       <div className="max-w-4xl mx-auto">
         {/* Welcome Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h1 className="text-3xl font-bold text-gray-800">
-            Welcome, {user?.firstName || 'User'}! 👋
+            Welcome, {user?.firstName || "User"}! 👋
           </h1>
           <p className="text-gray-600 mt-2">
             We're glad to have you here. Here's your personal dashboard.
@@ -23,11 +26,12 @@ export default async function Dashboard() {
             <h2 className="text-xl font-semibold mb-4">Your Account</h2>
             <div className="space-y-3">
               <p className="text-gray-600">
-                <span className="font-medium">Email:</span> {user?.emailAddresses[0].emailAddress}
+                <span className="font-medium">Email:</span>{" "}
+                {user?.emailAddresses[0].emailAddress}
               </p>
               <p className="text-gray-600">
-                <span className="font-medium">Member since:</span>{' '}
-                {new Date(user?.createdAt || '').toLocaleDateString()}
+                <span className="font-medium">Member since:</span>{" "}
+                {new Date(user?.createdAt || "").toLocaleDateString()}
               </p>
             </div>
           </div>
@@ -36,7 +40,9 @@ export default async function Dashboard() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
             <div className="space-y-3">
-              <p className="text-gray-600">Last login: {new Date(user?.lastSignInAt || '').toLocaleString()}</p>
+              <p className="text-gray-600">
+                Last login: {new Date(user?.lastSignInAt || "").toLocaleString()}
+              </p>
               <p className="text-gray-600">Account status: Active</p>
             </div>
           </div>
